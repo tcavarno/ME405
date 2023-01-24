@@ -9,11 +9,13 @@ class MotorDriver:
         """! 
         Creates a motor driver by initializing GPIO
         pins and turning off the motor for safety. 
-        @param en_pin ()
-        @param in1pin ()
-        @param in2pin ()
+        @param en_pin (Set the enable pin for the motor)
+        @param in1pin (Set the in1 pin for the motor)
+        @param in2pin (Set the in2 pin for the motor)
         @param timer  ()
         """
+
+
         print ("Creating a motor driver")
 
     def set_duty_cycle (self, level):
@@ -50,3 +52,16 @@ class EncoderReader:
         """!
         """
         pass
+
+def encoder_test():
+    #init
+    tim4 = pyb.Timer(4,period = 0xffff,prescaler = 0)
+    tim4_ch1 = tim4.channel(1,mode = pyb.Timer.ENC_AB)
+    #timer stuff
+
+
+def main():
+    encoder_test()
+
+if __name__ == "__main__":
+    main()
