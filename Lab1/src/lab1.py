@@ -103,7 +103,7 @@ def motor_test():
             for i in range(-100,110,10):
                 motorA.set_duty_cycle(i)
                 encoder.read()
-                print (f"Ticks: {encoder.ticks}")
+                print("Ticks: {encoder.ticks}")
                 pyb.delay(500)
             for i in range(100,-110,-10):
                 motorA.set_duty_cycle(i)
