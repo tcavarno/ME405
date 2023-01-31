@@ -47,7 +47,7 @@ class MotorDriver:
             self.en_pin(1)
         else:
             self.en_pin(0)
-        print (f"Setting duty cycle to {level}")
+        print(f"Setting duty cycle to {level}")
 
 class EncoderReader:
     """! 
@@ -76,7 +76,17 @@ class EncoderReader:
         """!
         """
         self.cur = self.timer.counter()
-        self.ticks += self.cur-self.prev if self.prev < self.cur else (2**16)- 1 - (self.prev - self.cur) 
+        delta = self.cur-self.prev
+        max_change = (2^16 + 1) / 2
+
+        #Underflow case
+        if(delta >= max_change):
+            delta -= (2^16 +1)
+        #Overflow case
+        elif(delta < -1*max_change):
+            delta += (2^16 +1)
+
+        self.ticks+=delta    
         self.prev = self.cur
 
     def zero(self):
