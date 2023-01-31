@@ -1,4 +1,27 @@
-import pyb
+"""!
+@file lab1.py
+This file contains code which uses PWM output
+with varying duty cycle to control a DC motor.
+It also uses timer channels for encoder measurements.
+
+TODO: Create a class called MotorDriver which allows a user
+      to initialize enabable, in1, in2, and timer pins to control
+      a motor with. As well as set the duty cycle of the initialized
+      motor to controll speed. 
+TODO: Create a class called EncoderReader which allows a user 
+      to inialize board pins for use with a motor_encoder, as well 
+      as read the encoder counter and handle underflow and overflow.
+TODO: Create a function called motor_test which spins a motor in both
+      directions and prints out the encoder count.
+TODO: Create a function name main which calls the motor_test
+      function.
+
+@author Miloh Padgett, Tristan Cavarno, Jon Abraham
+@date 12-Jan-2023 Original File
+"""
+
+
+import pyb #micropython board functions library
 
 class MotorDriver:
     """! 
@@ -88,11 +111,14 @@ class EncoderReader:
    
     def read(self):
         """!
-        Reads the counter
-        
+        Reads the counter and calculates the number of ticks.
+        Also accounts for underflow and overflow
         """
+        #get current encoder count
         self.cur = self.timer.counter()
+        #calculate delta
         delta = self.cur-self.prev
+        #calculate over/underflow limit
         max_change = (2**16 + 1) / 2
         print(f"Cur: {self.cur} Delta: {delta} Max: {max_change}")
         #Underflow case
@@ -102,11 +128,14 @@ class EncoderReader:
         elif(delta < -1*max_change):
             delta += (2**16 +1)
 
-        self.ticks+=delta    
+        #add delta to number of ticks
+        self.ticks+=delta
+        #store current in previous    
         self.prev = self.cur
 
     def zero(self):
         """!
+        Set's ticks to zero
         """
         self.ticks=0
 
@@ -149,9 +178,14 @@ def motor_test():
 
 
 def main():
+    """!
+    calls the motor_test function.
+    """
     motor_test()
 
 
-
+# The following code only runs if this file is run as the main script;
+# it does not run if this file is imported as a module
 if __name__ == "__main__":
+    #Call the main function
     main()
