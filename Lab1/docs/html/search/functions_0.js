@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_5f_5finit_5f_5f',['__init__',['../classlab1_1_1EncoderReader.html#a65355c9046304b42a1751add7ca595aa',1,'lab1::EncoderReader']]]
+  ['_5f_5finit_5f_5f',['__init__',['../classEncoderReader_1_1EncoderReader.html#a2783bc5a3c9d99553b31849247de6f53',1,'EncoderReader::EncoderReader']]]
 ];
