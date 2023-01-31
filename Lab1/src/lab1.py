@@ -5,22 +5,25 @@ class MotorDriver:
     This class implements a motor driver for an ME405 kit. 
     """
 
-    def __init__ (self, en_pin, in1pin, in2pin, timer):
+    def __init__ (self, en_pin: pyb.Pin, in1pin: pyb.Pin, in2pin: pyb.Pin, timer: pyb.Timer):
         """! 
         Creates a motor driver by initializing GPIO
         pins and turning off the motor for safety. 
         @param en_pin (Set the enable pin for the motor)
         @param in1pin (Set the in1 pin for the motor)
         @param in2pin (Set the in2 pin for the motor)
-        @param timer  ()
+        @param timer  (Sets the timer for the motor)
         """
+        #Asign this drivers pins and timer
         self.en_pin = en_pin
         self.in1pin = in1pin
         self.in2pin = in2pin
         self.timer = timer
 
+        #Disable the motor to begin
         self.en_pin.value(0)
 
+        #Asign the timer channels
         self.in1ch = self.timer.channel(1,pyb.Timer.PWM,pin = self.in1pin)
         self.in2ch = self.timer.channel(2,pyb.Timer.PWM,pin = self.in2pin)
         
@@ -36,17 +39,20 @@ class MotorDriver:
         @param level A signed integer holding the duty
                cycle of the voltage sent to the motor 
         """
+        #Set motor output for valid positive 'level's
         if(level > 0 and level <=100):
             self.in1ch.pulse_width_percent(level)
             self.in2ch.pulse_width_percent(0)
             self.en_pin(1)
-
+        #Set motor output for valid negative 'level's
         elif(level < 0 and level >= -100):
             self.in2ch.pulse_width_percent(abs(level))
             self.in1ch.pulse_width_percent(0)
             self.en_pin(1)
+        #Disable the motor on all other values
         else:
             self.en_pin(0)
+
         print(f"Setting duty cycle to {level}")
 
 class EncoderReader:
@@ -54,37 +60,47 @@ class EncoderReader:
     This class implements a EncoderReader for an ME405 kit. 
     """
 
-    def __init__ (self,en_A,en_B,timer):
+    def __init__ (self,enc_A,enc_B,timer):
         """! 
         Creates a EncoderReader by initializing GPIO
         pins and turning off the motor for safety. 
-        @param 
+        @param en_A     Pin for encoder channel A
+        @param en_A     Pin for encoder channel B
+        @param timer    timer used for counting 
         """
+
         print ("Creating a EncoderReader")
-        self.en_A = en_A
-        self.en_B = en_B
+
+        #Set interal pins and timer
+        self.en_A = enc_A
+        self.en_B = enc_B
         self.timer = timer
+
+        #Setup channels.
         self.tim4_ch1 = timer.channel(1,mode = pyb.Timer.ENC_AB,pin = self.en_A)
         self.tim4_ch2 = timer.channel(2,mode = pyb.Timer.ENC_AB,pin = self.en_B)
 
+        #Init other EncoderReader members
         self.prev=0
         self.cur=0
-
         self.ticks=0
+        self.timer.counter(0)
    
     def read(self):
         """!
+        Reads the counter
+        
         """
         self.cur = self.timer.counter()
         delta = self.cur-self.prev
-        max_change = (2^16 + 1) / 2
-
+        max_change = (2**16 + 1) / 2
+        print(f"Cur: {self.cur} Delta: {delta} Max: {max_change}")
         #Underflow case
-        if(delta >= max_change):
-            delta -= (2^16 +1)
+        if(delta > max_change):
+            delta -= (2**16 +1)
         #Overflow case
         elif(delta < -1*max_change):
-            delta += (2^16 +1)
+            delta += (2**16 +1)
 
         self.ticks+=delta    
         self.prev = self.cur
@@ -110,16 +126,23 @@ def motor_test():
 
     try:
         while(1):
-            for i in range(-100,110,10):
+            
+            for i in range(0,105,5):
                 motorA.set_duty_cycle(i)
                 encoder.read()
-                print("Ticks: {encoder.ticks}")
-                pyb.delay(500)
-            for i in range(100,-110,-10):
+                print(f"Ticks: {encoder.ticks}")
+                pyb.delay(100)
+            for i in range(100,-105,-5):
                 motorA.set_duty_cycle(i)
                 encoder.read()
                 print (f"Ticks: {encoder.ticks}")
-                pyb.delay(500)
+                pyb.delay(100)
+            for i in range(-100,5,5):
+                motorA.set_duty_cycle(i)
+                encoder.read()
+                print (f"Ticks: {encoder.ticks}")
+                pyb.delay(100)
+            
     except KeyboardInterrupt:
         motorA.set_duty_cycle(0)
         return
